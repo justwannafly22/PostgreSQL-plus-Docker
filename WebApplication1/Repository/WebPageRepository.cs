@@ -31,7 +31,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
     {
         ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
 
-        var entity = await GetWebPageByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
+        var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
         if (entity is null)
         {
             Log.Warning($"The country with id {id} doesn`t exist in the database.");
@@ -45,11 +45,27 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
         Log.Information($"The country: {entity} was successfully deleted.");
     }
 
+    public async Task<List<WebPageDomainModel>> GetFilteredDataAsync(string searchTerm)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(searchTerm, nameof(searchTerm));
+
+        var entities = GetWebPagesByExpression(e => EF.Functions.ILike(e.Content, $"%{searchTerm}%") || EF.Functions.ILike(e.Title, $"%{searchTerm}%"))
+            .Select(e => _factory.ToDomain(e))
+            .AsNoTracking();
+
+        Log.Information($"The country table was triggered. Returned count of rows: {entities.Count()}.");
+
+        return await entities.ToListAsync();
+    }
+
     public async Task<List<WebPageDomainModel>> GetAllAsync()
     {
-        var entities = await GetAllWebPages().Select(e => _factory.ToDomain(e)).AsNoTracking().ToListAsync();
+        var entities = await GetAllWebPages()
+            .Select(e => _factory.ToDomain(e))
+            .AsNoTracking()
+            .ToListAsync();
 
-        Log.Information($"The country table was triggered.");
+        Log.Information($"The country table was triggered. Returned count of rows: {entities.Count}.");
 
         return entities;
     }
@@ -58,7 +74,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
     {
         ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
 
-        var entity = await GetWebPageByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
+        var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
         if (entity is null)
         {
             Log.Warning($"The country with id {id} doesn`t exist in the database.");
@@ -73,7 +89,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
         ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
         ArgumentNullException.ThrowIfNull(model, nameof(model));
 
-        var entity = await GetWebPageByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
+        var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
         if (entity is null)
         {
             Log.Warning($"The country with id {id} doesn`t exist in the database.");
@@ -94,7 +110,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
     private IQueryable<WebPage> GetAllWebPages() =>
         _context.Set<WebPage>();
 
-    private IQueryable<WebPage> GetWebPageByExpression(Expression<Func<WebPage, bool>> expression) =>
+    private IQueryable<WebPage> GetWebPagesByExpression(Expression<Func<WebPage, bool>> expression) =>
         _context.Set<WebPage>()
                 .Where(expression);
 }

@@ -3,9 +3,9 @@ using WebAggregator.Boundary.Request;
 
 namespace WebAggregator.Infrastructure.Validators;
 
-public class WebPageCreateRequestModelValidator : AbstractValidator<WebPageCreateRequestModel>
+public class WebPageUpdateRequestModelValidator : AbstractValidator<WebPageUpdateRequestModel>
 {
-    public WebPageCreateRequestModelValidator()
+    public WebPageUpdateRequestModelValidator()
     {
         RuleFor(r => r.Url)
             .NotEmpty().WithMessage("{PropertyName} is a required field.")

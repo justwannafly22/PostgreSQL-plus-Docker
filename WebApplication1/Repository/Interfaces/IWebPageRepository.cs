@@ -9,4 +9,5 @@ public interface IWebPageRepository
     public Task<WebPageDomainModel> GetByIdAsync(Guid? id);
     public Task<WebPageDomainModel> UpdateAsync(Guid id, WebPageDomainModel model);
     public Task DeleteAsync(Guid? id);
+    public Task<List<WebPageDomainModel>> GetFilteredDataAsync(string searchTerm);
 }

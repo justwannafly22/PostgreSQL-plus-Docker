@@ -29,6 +29,17 @@ public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapp
     }
 
     /// <summary>
+    /// Returns filtered pages
+    /// </summary>
+    [HttpGet("search")]
+    public async Task<IActionResult> GetFilteredPages([FromQuery] string searchTerm)
+    {
+        var response = _mapper.Map<List<WebPageResponseModel>>(await _webPageBusinessLogic.GetFilteredDataAsync(searchTerm));
+
+        return Ok(response);
+    }
+
+    /// <summary>
     /// Returns a web page
     /// </summary>
     [HttpGet("{id}")]

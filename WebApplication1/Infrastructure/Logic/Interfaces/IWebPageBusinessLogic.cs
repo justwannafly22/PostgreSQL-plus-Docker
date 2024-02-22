@@ -9,4 +9,5 @@ public interface IWebPageBusinessLogic
     public Task DeleteAsync(Guid id);
     public Task<WebPageDomainModel> GetByIdAsync(Guid id);
     public Task<List<WebPageDomainModel>> GetAllPeopleAsync();
+    public Task<List<WebPageDomainModel>> GetFilteredDataAsync(string searchTerm);
 }
