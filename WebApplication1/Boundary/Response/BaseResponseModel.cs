@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Net;
 
-namespace WebAggregator.Boundary;
+namespace WebAggregator.Boundary.Response;
 
 public class BaseResponseModel
 {

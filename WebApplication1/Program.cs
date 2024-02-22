@@ -1,5 +1,7 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebAggregator.Infrastructure;
 using WebAggregator.Infrastructure.Extensions;
 using WebAggregator.Infrastructure.Middleware;
 using WebAggregator.Repository;
@@ -16,14 +18,16 @@ try
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+    builder.Services.AddAutoMapper(typeof(MappingProfile));
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    // ToDo: Configure database connection string to use both on-premise and docker ways.
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("sqlConnection")));
 
+    builder.Services.ConfigureLogic();
     builder.Services.ConfigureFactories();
     builder.Services.ConfigureRepositories();
 

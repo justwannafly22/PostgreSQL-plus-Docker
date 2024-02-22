@@ -1,6 +1,6 @@
 ﻿using Serilog;
 using System.Net;
-using WebAggregator.Boundary;
+using WebAggregator.Boundary.Response;
 using WebAggregator.Infrastructure.Exceptions;
 
 namespace WebAggregator.Infrastructure.Middleware;
