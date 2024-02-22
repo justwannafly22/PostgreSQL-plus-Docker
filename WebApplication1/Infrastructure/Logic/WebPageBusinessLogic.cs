@@ -29,10 +29,12 @@ public class WebPageBusinessLogic (IWebPageRepository repository) : IWebPageBusi
     {
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
+        
 
+        // Parallel work -- ForEachAsync
         // happy path -- get the base url + the href = path to the news -- by this path we can get a content of the page means Content by words (the content of the page) and the title as well;
         // need to secure is it a base url or not;
-        // innerText + outerHTML (need to get href);
+        // innerText (title) + outerHTML (need to get href = content);
         var tags = htmlDoc.DocumentNode.Descendants("a")
             .Where(node => node.GetAttributeValue("href", "").Contains("/news/"))
             .ToList();

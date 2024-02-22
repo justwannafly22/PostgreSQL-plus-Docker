@@ -17,6 +17,8 @@ public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapp
     private readonly IWebPageBusinessLogic _webPageBusinessLogic = webPageBusinessLogic;
     private readonly IMapper _mapper = mapper;
 
+    // ToDo: Remove update method and need to update the create model just to have one url for creating and don`t bind Create model in to any other cause they are not linked to each other by the logic;
+
     /// <summary>
     /// Returns all pages
     /// </summary>
