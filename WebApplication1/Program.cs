@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebAggregator.Infrastructure;
@@ -18,6 +19,7 @@ try
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
     builder.Services.AddAutoMapper(typeof(MappingProfile));
 

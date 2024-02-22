@@ -9,6 +9,9 @@ using WebAggregator.Infrastructure.Logic.Interfaces;
 
 namespace WebAggregator.Controllers;
 
+[ApiController]
+[Route("api/v1/webpages")]
+[ApiExplorerSettings(GroupName = "v1")]
 public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapper mapper) : BaseController
 {
     private readonly IWebPageBusinessLogic _webPageBusinessLogic = webPageBusinessLogic;
