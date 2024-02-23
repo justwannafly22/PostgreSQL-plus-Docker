@@ -9,8 +9,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        // ToDo: possibly need to delete.
         CreateMap<WebPageCreateRequestModel, WebPageDomainModel>();
-        CreateMap<WebPageUpdateRequestModel, WebPageDomainModel>();
 
         CreateMap<WebPageDomainModel, WebPageResponseModel>();
     }

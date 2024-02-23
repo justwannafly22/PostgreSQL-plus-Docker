@@ -23,4 +23,13 @@ public static class ServiceExtensions
     {
         services.AddScoped<IWebPageBusinessLogic, WebPageBusinessLogic>();
     }
+    
+    public static void ConfigureHttpClientFactory(this IServiceCollection services)
+    {
+        services.AddHttpClient("WebPageClient", config =>
+        {
+            config.Timeout = new TimeSpan(0, 0, 30);
+            config.DefaultRequestHeaders.Clear();
+        });
+    }
 }

@@ -1,55 +1,68 @@
 ﻿using HtmlAgilityPack;
-using System.Xml;
+using System.Collections.Concurrent;
 using WebAggregator.Domain;
+using WebAggregator.Infrastructure.Helpers;
 using WebAggregator.Infrastructure.Logic.Interfaces;
 using WebAggregator.Repository.Interfaces;
 
 namespace WebAggregator.Infrastructure.Logic;
 
-public class WebPageBusinessLogic (IWebPageRepository repository) : IWebPageBusinessLogic
+public class WebPageBusinessLogic (IWebPageRepository repository, IHttpClientFactory httpClientFactory) : IWebPageBusinessLogic
 {
     private readonly IWebPageRepository _repository = repository;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    public async Task<WebPageDomainModel> CreateAsync(WebPageDomainModel model)
+    public async Task<List<WebPageDomainModel>> CreateAsync(WebPageDomainModel model)
     {
         ArgumentNullException.ThrowIfNull(model, nameof(model));
 
-        var client = new HttpClient();
+        var client = _httpClientFactory.CreateClient("WebPageClient");
         var response = await client.GetAsync(model.Url!);
         var content = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {
-            ParseHtml(content);
+            var baseUrl = StringHelper.ReturnBaseUrl(model.Url!);
+            var tags = ParseHtml(content);
+            return await CreateWebPagesAsync(tags, baseUrl);
         }
 
-        return await _repository.CreateAsync(model);
+        return [];
     }
 
-    private List<string> ParseHtml(string html)
+    private static List<HtmlNode> ParseHtml(string html)
     {
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
-        
 
-        // Parallel work -- ForEachAsync
-        // happy path -- get the base url + the href = path to the news -- by this path we can get a content of the page means Content by words (the content of the page) and the title as well;
-        // need to secure is it a base url or not;
-        // innerText (title) + outerHTML (need to get href = content);
-        var tags = htmlDoc.DocumentNode.Descendants("a")
+        return htmlDoc.DocumentNode.Descendants("a")
             .Where(node => node.GetAttributeValue("href", "").Contains("/news/"))
             .ToList();
-
-        List<string> wikiLink = new List<string>();
-
-        return wikiLink;
     }
 
-    public async Task<WebPageDomainModel> UpdateAsync(Guid id, WebPageDomainModel model)
+    private async Task<List<WebPageDomainModel>> CreateWebPagesAsync(List<HtmlNode> tags, string baseUrl)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
-        ArgumentNullException.ThrowIfNull(model, nameof(model));
+        var webPages = new ConcurrentBag<WebPageDomainModel>();
+        var client = _httpClientFactory.CreateClient("WebPageClient");
+        client.BaseAddress = new Uri(baseUrl);
 
-        return await _repository.UpdateAsync(id, model);
+        await Parallel.ForEachAsync(tags, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount - 1 }, async (tag, cancellationToken) =>
+        {
+            var url = StringHelper.ExtractUrl(tag.OuterHtml);
+            var response = await client.GetAsync(url, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            var title = StringHelper.RemoveNonAlphanumeric(tag.InnerText);
+
+            var page = new WebPageDomainModel
+            {
+                Content = content,
+                Title = title,
+                Url = baseUrl + url
+            };
+            webPages.Add(page);
+        });
+
+        return await _repository.CreateListAsync(webPages.ToList());
     }
 
     public async Task<List<WebPageDomainModel>> GetFilteredDataAsync(string searchTerm)

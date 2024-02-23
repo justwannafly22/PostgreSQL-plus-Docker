@@ -17,8 +17,6 @@ public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapp
     private readonly IWebPageBusinessLogic _webPageBusinessLogic = webPageBusinessLogic;
     private readonly IMapper _mapper = mapper;
 
-    // ToDo: Remove update method and need to update the create model just to have one url for creating and don`t bind Create model in to any other cause they are not linked to each other by the logic;
-
     /// <summary>
     /// Returns all pages
     /// </summary>
@@ -60,7 +58,7 @@ public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapp
     }
 
     /// <summary>
-    /// Create a web page
+    /// Create web pages
     /// </summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] WebPageCreateRequestModel model)
@@ -70,33 +68,11 @@ public class WebPageController(IWebPageBusinessLogic webPageBusinessLogic, IMapp
             return BadRequest(new BaseResponseModel(GetErrorMessage(ModelState), HttpStatusCode.BadRequest));
         }
 
-        var addedWebPage = await _webPageBusinessLogic.CreateAsync(_mapper.Map<WebPageDomainModel>(model));
+        var addedWebPages = await _webPageBusinessLogic.CreateAsync(_mapper.Map<WebPageDomainModel>(model));
 
-        return CreatedAtAction(nameof(Create), _mapper.Map<WebPageResponseModel>(addedWebPage));
+        return CreatedAtAction(nameof(Create), _mapper.Map<List<WebPageResponseModel>>(addedWebPages));
     }
 
-    /// <summary>
-    /// Update a web page
-    /// </summary>
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] WebPageUpdateRequestModel model)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new BaseResponseModel(GetErrorMessage(ModelState), HttpStatusCode.BadRequest));
-            }
-
-            _ = await _webPageBusinessLogic.UpdateAsync(id, _mapper.Map<WebPageDomainModel>(model));
-
-            return NoContent();
-        }
-        catch (NotFoundException)
-        {
-            return NotFound(($"WebPage with id: {id} doesn`t exist in the database.", HttpStatusCode.NotFound));
-        }
-    }
 
     /// <summary>
     /// Delete a web page

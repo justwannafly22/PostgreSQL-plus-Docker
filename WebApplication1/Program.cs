@@ -32,6 +32,7 @@ try
     builder.Services.ConfigureLogic();
     builder.Services.ConfigureFactories();
     builder.Services.ConfigureRepositories();
+    builder.Services.ConfigureHttpClientFactory();
 
     var app = builder.Build();
 

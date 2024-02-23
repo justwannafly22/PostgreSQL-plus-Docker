@@ -22,9 +22,25 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
         await _context.WebPages.AddAsync(entity);
         await _context.SaveChangesAsync();
 
-        Log.Information($"The country: {entity} was successfully created.");
+        Log.Information($"The web page: {entity} was successfully created.");
 
         return _factory.ToDomain(entity);
+    }
+    
+    public async Task<List<WebPageDomainModel>> CreateListAsync(List<WebPageDomainModel> models)
+    {
+        if (models is null || models.Count == 0)
+        {
+            throw new ArgumentException(nameof(models));
+        }
+
+        var entities = models.Select(_factory.ToEntity);
+        await _context.WebPages.AddRangeAsync(entities);
+        await _context.SaveChangesAsync();
+
+        Log.Information($"Web pages in amount of: {entities.Count()} was successfully created.");
+
+        return entities.Select(_factory.ToDomain).ToList();
     }
 
     public async Task DeleteAsync(Guid? id)
@@ -34,15 +50,15 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
         var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
         if (entity is null)
         {
-            Log.Warning($"The country with id {id} doesn`t exist in the database.");
-            throw new NotFoundException($"The country with id {id} doesn`t exist in the database.");
+            Log.Warning($"The web page with id {id} doesn`t exist in the database.");
+            throw new NotFoundException($"The web page with id {id} doesn`t exist in the database.");
         }
 
         _context.Remove(entity!);
 
         await _context.SaveChangesAsync();
 
-        Log.Information($"The country: {entity} was successfully deleted.");
+        Log.Information($"The web page: {entity} was successfully deleted.");
     }
 
     public async Task<List<WebPageDomainModel>> GetFilteredDataAsync(string searchTerm)
@@ -53,7 +69,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
             .Select(e => _factory.ToDomain(e))
             .AsNoTracking();
 
-        Log.Information($"The country table was triggered. Returned count of rows: {entities.Count()}.");
+        Log.Information($"The web page table was triggered. Returned count of rows: {entities.Count()}.");
 
         return await entities.ToListAsync();
     }
@@ -65,7 +81,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
             .AsNoTracking()
             .ToListAsync();
 
-        Log.Information($"The country table was triggered. Returned count of rows: {entities.Count}.");
+        Log.Information($"The web page table was triggered. Returned count of rows: {entities.Count}.");
 
         return entities;
     }
@@ -77,34 +93,11 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
         var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
         if (entity is null)
         {
-            Log.Warning($"The country with id {id} doesn`t exist in the database.");
-            throw new NotFoundException($"The country with id {id} doesn`t exist in the database.");
+            Log.Warning($"The web page with id {id} doesn`t exist in the database.");
+            throw new NotFoundException($"The web page with id {id} doesn`t exist in the database.");
         }
 
         return _factory.ToDomain(entity!);
-    }
-
-    public async Task<WebPageDomainModel> UpdateAsync(Guid id, WebPageDomainModel model)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
-        ArgumentNullException.ThrowIfNull(model, nameof(model));
-
-        var entity = await GetWebPagesByExpression(e => e.Id.Equals(id)).SingleOrDefaultAsync();
-        if (entity is null)
-        {
-            Log.Warning($"The country with id {id} doesn`t exist in the database.");
-            throw new NotFoundException($"The country with id {id} doesn`t exist in the database.");
-        }
-
-        entity.Url = model.Url;
-        entity.Title = model.Title;
-        entity.Content = model.Content;
-
-        await _context.SaveChangesAsync();
-
-        Log.Information($"The country: {entity} was successfully updated.");
-
-        return _factory.ToDomain(entity);
     }
 
     private IQueryable<WebPage> GetAllWebPages() =>

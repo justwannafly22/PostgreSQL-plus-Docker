@@ -6,5 +6,5 @@ public class WebPage
     public string? Title { get; set; }
     public string? Url { get; set; }
     public string? Content { get; set; }
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
