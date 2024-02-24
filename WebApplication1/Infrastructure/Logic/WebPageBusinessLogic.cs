@@ -1,5 +1,7 @@
 ﻿using HtmlAgilityPack;
+using Serilog;
 using System.Collections.Concurrent;
+using System.Threading;
 using WebAggregator.Domain;
 using WebAggregator.Infrastructure.Helpers;
 using WebAggregator.Infrastructure.Logic.Interfaces;
@@ -45,21 +47,31 @@ public class WebPageBusinessLogic (IWebPageRepository repository, IHttpClientFac
         var client = _httpClientFactory.CreateClient("WebPageClient");
         client.BaseAddress = new Uri(baseUrl);
 
-        await Parallel.ForEachAsync(tags, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount - 1 }, async (tag, cancellationToken) =>
+        await Parallel.ForEachAsync(tags, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, async (tag, cancellationToken) =>
         {
-            var url = StringHelper.ExtractUrl(tag.OuterHtml);
-            var response = await client.GetAsync(url, cancellationToken);
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var extractedUrl = StringHelper.ExtractUrl(tag.OuterHtml);
+            var url = baseUrl + extractedUrl;
 
-            var title = StringHelper.RemoveNonAlphanumeric(tag.InnerText);
-
-            var page = new WebPageDomainModel
+            try
             {
-                Content = content,
-                Title = title,
-                Url = baseUrl + url
-            };
-            webPages.Add(page);
+                var response = await client.GetAsync(extractedUrl, cancellationToken);
+                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+                var title = StringHelper.RemoveNonAlphanumeric(tag.InnerText);
+
+                var page = new WebPageDomainModel
+                {
+                    Id = Guid.NewGuid(),
+                    Content = content,
+                    Title = title,
+                    Url = url
+                };
+                webPages.Add(page);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"The web page with url: {url} isn`t reachable.");
+            }
         });
 
         return await _repository.CreateListAsync(webPages.ToList());

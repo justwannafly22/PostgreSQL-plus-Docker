@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAggregator", "WebApplication1\WebAggregator.csproj", "{1FD3A179-D978-4623-839A-247852E633C8}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5A6DB4AC-039C-4733-A789-DC801D11B2B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1FD3A179-D978-4623-839A-247852E633C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FD3A179-D978-4623-839A-247852E633C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FD3A179-D978-4623-839A-247852E633C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6DB4AC-039C-4733-A789-DC801D11B2B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6DB4AC-039C-4733-A789-DC801D11B2B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6DB4AC-039C-4733-A789-DC801D11B2B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6DB4AC-039C-4733-A789-DC801D11B2B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,9 +29,9 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
     
     public async Task<List<WebPageDomainModel>> CreateListAsync(List<WebPageDomainModel> models)
     {
-        if (models is null || models.Count == 0)
+        if (models is null)
         {
-            throw new ArgumentException(nameof(models));
+            throw new ArgumentNullException(nameof(models));
         }
 
         var entities = models.Select(_factory.ToEntity);
