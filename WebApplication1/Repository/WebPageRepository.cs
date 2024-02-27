@@ -29,10 +29,7 @@ public class WebPageRepository(AppDbContext context, IWebPageRepositoryFactory f
     
     public async Task<List<WebPageDomainModel>> CreateListAsync(List<WebPageDomainModel> models)
     {
-        if (models is null)
-        {
-            throw new ArgumentNullException(nameof(models));
-        }
+        ArgumentNullException.ThrowIfNull(models);
 
         var entities = models.Select(_factory.ToEntity);
         await _context.WebPages.AddRangeAsync(entities);
