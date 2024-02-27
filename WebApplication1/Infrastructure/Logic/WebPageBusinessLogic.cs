@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Serilog;
 using System.Collections.Concurrent;
+using System.Threading;
 using WebAggregator.Domain;
 using WebAggregator.Infrastructure.Helpers;
 using WebAggregator.Infrastructure.Logic.Interfaces;
@@ -69,7 +70,7 @@ public class WebPageBusinessLogic (IWebPageRepository repository, IHttpClientFac
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"The web page with url: {url} isn`t reachable.");
+                Log.Error($"The web page with url: {url} isn`t reachable.");
             }
         });
 
